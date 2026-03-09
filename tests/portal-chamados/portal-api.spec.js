@@ -15,10 +15,6 @@
 
 const { test, expect } = require('../fixtures');
 
-// Skip all tests in CI — the dev API server is only reachable within T-UP's
-// private network. Run locally with the real server or a VPN.
-test.skip(!!process.env.CI, 'Dev API server not reachable from GitHub Actions');
-
 // API base and credentials from environment variables — never hardcode secrets.
 // To run locally: API_BASE=... MASTER_EMAIL=... MASTER_PASSWORD=... npx playwright test
 // Or create a .env file (see .env.example)

@@ -11,10 +11,6 @@ const { test, expect } = require('../fixtures');
 const fs   = require('fs');
 const path = require('path');
 
-// Skip all tests in CI — the dev frontend is only reachable within T-UP's
-// private network. Run locally with the real server or a VPN.
-test.skip(!!process.env.CI, 'Dev frontend not reachable from GitHub Actions');
-
 // ---------------------------------------------------------------------------
 // Configuration
 // ---------------------------------------------------------------------------
