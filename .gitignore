@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Playwright generated output
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Evidence artifacts (auto-generated on every run)
+screenshots/
+videos/
+
+# Environment secrets — never commit credentials
+.env
+
+# macOS metadata
+.DS_Store
+**/.DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db

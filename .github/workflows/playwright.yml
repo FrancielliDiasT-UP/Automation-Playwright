@@ -1,0 +1,99 @@
+name: Playwright Tests — Portal de Chamados
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    name: Run Playwright Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # -----------------------------------------------------------------------
+      # 1. Checkout
+      # -----------------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------------------------
+      # 2. Node.js setup
+      # -----------------------------------------------------------------------
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # -----------------------------------------------------------------------
+      # 3. Install dependencies
+      # npm ci respects package-lock.json exactly — reproducible installs
+      # -----------------------------------------------------------------------
+      - name: Install dependencies
+        run: npm ci
+
+      # -----------------------------------------------------------------------
+      # 4. Install Playwright browsers + OS-level dependencies
+      # --with-deps installs system libs (libglib, libnss, etc.) needed on Linux
+      # -----------------------------------------------------------------------
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      # -----------------------------------------------------------------------
+      # 5. Run the full test suite
+      # CI=true activates: retries=2, workers=1, forbidOnly
+      # Secrets are injected as env vars — never hardcoded in source
+      # -----------------------------------------------------------------------
+      - name: Run tests
+        run: npm test
+        env:
+          CI: true
+          MASTER_EMAIL: ${{ secrets.MASTER_EMAIL }}
+          MASTER_PASSWORD: ${{ secrets.MASTER_PASSWORD }}
+          API_BASE: ${{ secrets.API_BASE }}
+
+      # -----------------------------------------------------------------------
+      # 6. Upload HTML report
+      # always() ensures upload even when tests fail — report is the evidence
+      # -----------------------------------------------------------------------
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
+      # -----------------------------------------------------------------------
+      # 7. Upload JUnit XML results (one file per browser)
+      # Allows GitHub to surface per-test results natively in the PR checks UI
+      # -----------------------------------------------------------------------
+      - name: Upload JUnit test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 30
+
+      # -----------------------------------------------------------------------
+      # 8. Upload screenshots and videos (evidence for failed tests)
+      # -----------------------------------------------------------------------
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/
+          retention-days: 30
+
+      - name: Upload videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: videos
+          path: videos/
+          retention-days: 30
