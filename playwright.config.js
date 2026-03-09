@@ -33,13 +33,19 @@ module.exports = defineConfig({
   // The HTML report is written to playwright-report/ and already groups tests
   // by browser project. The JUnit report adds a machine-readable XML file
   // per-browser so CI systems can parse individual browser results.
-  reporter: [
-    ['html', { outputFolder: 'playwright-report' }],
-    ['junit', { outputFile: 'test-results/chromium/results.xml', projectFilter: 'chromium' }],
-    ['junit', { outputFile: 'test-results/firefox/results.xml',  projectFilter: 'firefox'  }],
-    ['junit', { outputFile: 'test-results/webkit/results.xml',   projectFilter: 'webkit'   }],
-    ['list'],
-  ],
+  reporter: process.env.CI
+    ? [
+        ['html', { outputFolder: 'playwright-report' }],
+        ['junit', { outputFile: 'test-results/chromium/results.xml' }],
+        ['list'],
+      ]
+    : [
+        ['html', { outputFolder: 'playwright-report' }],
+        ['junit', { outputFile: 'test-results/chromium/results.xml', projectFilter: 'chromium' }],
+        ['junit', { outputFile: 'test-results/firefox/results.xml',  projectFilter: 'firefox'  }],
+        ['junit', { outputFile: 'test-results/webkit/results.xml',   projectFilter: 'webkit'   }],
+        ['list'],
+      ],
   
   // Shared settings for all tests
   use: {
@@ -49,17 +55,16 @@ module.exports = defineConfig({
     // 1280×720 viewport — consistent HD baseline for screenshots and video
     viewport: { width: 1280, height: 720 },
 
-    // Always capture a full-page screenshot (embedded in HTML report)
-    screenshot: 'on',
+    // Capture screenshot only on failure in CI to save time; always locally
+    screenshot: process.env.CI ? 'only-on-failure' : 'on',
 
-    // Always record video at HD resolution (saved alongside test results)
-    video: {
-      mode: 'on',
-      size: { width: 1280, height: 720 },
-    },
+    // Record video only on first retry in CI; always locally
+    video: process.env.CI
+      ? { mode: 'retain-on-failure', size: { width: 1280, height: 720 } }
+      : { mode: 'on', size: { width: 1280, height: 720 } },
 
-    // Always collect a trace so every test can be replayed step-by-step
-    trace: 'on',
+    // Collect trace only on first retry in CI; always locally
+    trace: process.env.CI ? 'on-first-retry' : 'on',
 
     // Give each UI action up to 15 s before timing out
     actionTimeout: 15 * 1000,
@@ -68,24 +73,35 @@ module.exports = defineConfig({
   // Configure projects for different browsers.
   // Each project writes its artifacts (videos, traces, screenshots) into its
   // own subfolder under test-results/ so runs are easy to inspect per browser.
-  projects: [
-    {
-      name: 'chromium',
-      outputDir: './test-results/chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
+  projects: process.env.CI
+    // On CI: Chromium only — fast, reliable, avoids 30-min timeouts
+    ? [
+        {
+          name: 'chromium',
+          outputDir: './test-results/chromium',
+          use: { ...devices['Desktop Chrome'] },
+        },
+      ]
+    // Locally: all three browsers
+    : [
+        {
+          name: 'chromium',
+          outputDir: './test-results/chromium',
+          use: { ...devices['Desktop Chrome'] },
+        },
 
-    {
-      name: 'firefox',
-      outputDir: './test-results/firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
+        {
+          name: 'firefox',
+          outputDir: './test-results/firefox',
+          use: { ...devices['Desktop Firefox'] },
+        },
 
-    {
-      name: 'webkit',
-      outputDir: './test-results/webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+        {
+          name: 'webkit',
+          outputDir: './test-results/webkit',
+          use: { ...devices['Desktop Safari'] },
+        },
+      ],
 
     // Uncomment to test on mobile viewports
     // {

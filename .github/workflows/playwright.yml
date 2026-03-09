@@ -10,7 +10,7 @@ jobs:
   test:
     name: Run Playwright Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
 
     steps:
       # -----------------------------------------------------------------------
@@ -40,7 +40,7 @@ jobs:
       # --with-deps installs system libs (libglib, libnss, etc.) needed on Linux
       # -----------------------------------------------------------------------
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium
 
       # -----------------------------------------------------------------------
       # 5. Run the full test suite
