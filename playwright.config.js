@@ -103,19 +103,6 @@ module.exports = defineConfig({
         },
       ],
 
-    // Uncomment to test on mobile viewports
-    // {
-    //   name: 'Mobile Chrome',
-    //   outputDir: './test-results/mobile-chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   outputDir: './test-results/mobile-safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-  ],
-
   // Run your local dev server before starting tests
   // Uncomment if you have a local server to test
   // webServer: {
