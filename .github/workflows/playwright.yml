@@ -53,7 +53,20 @@ jobs:
         run: npx playwright install chromium
 
       # -----------------------------------------------------------------------
-      # 5. Run API suite
+      # 5. Smoke-check: verify API_BASE is reachable from this runner
+      # -----------------------------------------------------------------------
+      - name: Check API reachability
+        run: |
+          echo "API_BASE length: ${#API_BASE}"
+          echo "API_BASE last 20 chars: ...${API_BASE: -20}"
+          curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" -X POST "$API_BASE/auth/login" \
+            -H "Content-Type: application/json" \
+            -d '{"email":"test@test.com","password":"test"}'
+        env:
+          API_BASE: ${{ secrets.API_BASE }}
+
+      # -----------------------------------------------------------------------
+      # 6. Run API suite
       # PRs run smoke for fast feedback; push/manual run full API suite.
       # Secrets are injected as env vars — never hardcoded in source
       # -----------------------------------------------------------------------
