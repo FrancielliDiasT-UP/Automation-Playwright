@@ -5,6 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
+    "test:api": "npm run test:api:full",
+    "test:api:full": "playwright test tests/portal-chamados/portal-api.spec.js",
+    "test:api:smoke": "playwright test tests/portal-chamados/portal-api.spec.js --grep \"\\[HAPPY\\].*(POST /auth/login|GET /users|GET /tickets|GET /companies|GET /roles)\"",
+    "test:ui:portal": "playwright test tests/portal-chamados/portal-auth.spec.js",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",
